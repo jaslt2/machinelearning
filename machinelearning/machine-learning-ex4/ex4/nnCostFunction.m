@@ -82,14 +82,36 @@ end;
 
 J = J/m;
 
+% regularization
+Theta1_no_bias = Theta1(:, 2:size(Theta1,2));
+Theta2_no_bias = Theta2(:, 2:size(Theta2,2));
+J += lambda/(2*m).*(sum(sum(Theta1_no_bias.^2)) + sum(sum(Theta2_no_bias.^2)));
+
+Theta1_grad_acc = Theta1_grad;
+Theta2_grad_acc = Theta2_grad;
+
+for t=1:m
+	yv = zeros(1, num_labels);
+	yv(y(t)) = 1;
+	delta3 = a3(t,:) - yv;
+	mult = Theta2'*delta3';
+	delta2 = mult(2:end).*sigmoidGradient(z2(t,:)');
+	Theta1_grad_acc += delta2*a1(t,:);
+	Theta2_grad_acc += delta3'*a2(t,:);
+end
+
+Theta1_grad = Theta1_grad_acc./m;
+Theta2_grad = Theta2_grad_acc./m;
 
 
+% regularization
+Theta1_zeroed = Theta1;
+Theta1_zeroed(:,1) = 0;
+Theta2_zeroed = Theta2;
+Theta2_zeroed (:,1) = 0;
 
-
-
-
-
-
+Theta1_grad += (lambda/m).*Theta1_zeroed;
+Theta2_grad += (lambda/m).*Theta2_zeroed;
 
 % -------------------------------------------------------------
 
